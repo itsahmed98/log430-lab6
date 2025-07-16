@@ -1,0 +1,284 @@
+services:
+
+  client-app:
+    build:
+      context: ./MagasinCentral
+      dockerfile: Dockerfile
+    image: magasincentral-api:latest
+    restart: on-failure
+    container_name: client-app
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Username=magasinuser;Password=magasinpass;Database=magasincentraldb"
+      JwtSettings__Issuer: "MagasinCentralAPI"
+      JwtSettings__Audience: "MagasinCentralClient"
+      JwtSettings__Secret: "MON_CLE_SECRETE_TRES_LONGUE_ET_COMPLEXE"
+      JwtSettings__TokenValidityInMinutes: "60"
+    expose:
+      - "80"
+
+  catalogue-service-db:
+    image: postgres:15 
+    container_name: catalogue-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: magasinuser
+      POSTGRES_PASSWORD: magasinpass
+      POSTGRES_DB: catalogueMcServiceDb
+    volumes:
+      - catalogue-db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  catalogue-api:
+    build:
+      context: ./CatalogueMcService
+      dockerfile: Dockerfile
+    image: catalogue-mc-service:latest
+    restart: on-failure
+    container_name: magasincentral-catalogue
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=catalogue-service-db;Port=5432;Username=magasinuser;Password=magasinpass;Database=catalogueMcServiceDb"
+    depends_on:
+      - catalogue-service-db
+    ports:
+      - "5001:80"
+  
+  catalogue-api-1:
+    image: catalogue-mc-service:latest
+    container_name: catalogue-api-1
+    restart: on-failure
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=catalogue-service-db;Port=5432;Username=magasinuser;Password=magasinpass;Database=catalogueMcServiceDb"
+    depends_on:
+      - catalogue-service-db
+    ports:
+      - "5010:80"
+
+  # catalogue-api-2:
+  #   image: catalogue-mc-service:latest
+  #   container_name: catalogue-api-2
+  #   restart: on-failure
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: "Production"
+  #     ASPNETCORE_URLS: "http://+:80"
+  #     ConnectionStrings__DefaultConnection: "Host=catalogue-service-db;Port=5432;Username=magasinuser;Password=magasinpass;Database=catalogueMcServiceDb"
+  #   depends_on:
+  #     - catalogue-service-db
+  #   expose:
+  #     - "80"
+
+  inventaire-service-db:
+    image: postgres:15 
+    container_name: inventaire-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: magasinuser
+      POSTGRES_PASSWORD: magasinpass
+      POSTGRES_DB: inventaireMcServiceDb
+    volumes:
+      - inventaire-db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  inventaire-api:
+    build:
+      context: ./inventaireMcService
+      dockerfile: Dockerfile
+    image: inventaire-mc-service:latest
+    restart: on-failure
+    container_name: magasincentral-inventaire
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=inventaire-service-db;Port=5432;Username=magasinuser;Password=magasinpass;Database=inventaireMcServiceDb"
+    depends_on:
+      - inventaire-service-db
+    ports:
+      - "5002:80"
+  
+  vente-service-db:
+    image: postgres:15 
+    container_name: vente-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: magasinuser
+      POSTGRES_PASSWORD: magasinpass
+      POSTGRES_DB: venteMcServiceDb
+    volumes:
+      - vente-db_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
+  vente-api:
+    build:
+      context: ./venteMcService
+      dockerfile: Dockerfile
+    image: vente-mc-service:latest
+    restart: on-failure
+    container_name: magasincentral-vente
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=vente-service-db;Port=5432;Username=magasinuser;Password=magasinpass;Database=venteMcServiceDb"
+    depends_on:
+      - vente-service-db
+      - catalogue-api
+      - inventaire-api
+    ports:
+      - "5003:80"
+
+  administration-service-db:
+    image: postgres:15 
+    container_name: administration-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: magasinuser
+      POSTGRES_PASSWORD: magasinpass
+      POSTGRES_DB: administrationMcServiceDb
+    volumes:
+      - administration-db_data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+
+  administration-api:
+    build:
+      context: ./administrationMcService
+      dockerfile: Dockerfile
+    image: administration-mc-service:latest
+    restart: on-failure
+    container_name: magasincentral-administration
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=administration-service-db;Port=5432;Username=magasinuser;Password=magasinpass;Database=administrationMcServiceDb"
+    depends_on:
+      - administration-service-db
+    ports:
+      - "5004:80"
+
+  ecommerce-service-db:
+    image: postgres:15
+    container_name: ecommerce-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: magasinuser
+      POSTGRES_PASSWORD: magasinpass
+      POSTGRES_DB: ecommerceMcServiceDb
+    volumes:
+      - ecommerce-db_data:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
+
+  ecommerce-api:
+    build:
+      context: ./ecommerceMcService
+      dockerfile: Dockerfile
+    image: ecommerce-mc-service:latest
+    restart: on-failure
+    container_name: magasincentral-ecommerce
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=ecommerce-service-db;Port=5432;Username=magasinuser;Password=magasinpass;Database=ecommerceMcServiceDb"
+    depends_on:
+      - ecommerce-service-db
+    ports:
+      - "5005:80"
+
+    # Prometheus pour les métriques
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: magasincentral-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - client-app
+      - catalogue-api-1
+
+  # Grafana dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: magasincentral-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: magasincentral-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+
+  nginx:
+    image: nginx:stable
+    container_name: magasincentral-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - client-app
+
+  kong-database:
+    image: postgres:13
+    container_name: kong-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_DB: kong
+      POSTGRES_PASSWORD: kong
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+
+  kong:
+    image: kong:3.4
+    container_name: kong
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    volumes:
+      - ./kong-logs:/var/log/kong
+    ports:
+      - "8000:8000"   # Entrée API (proxy)
+      - "8443:8443"   # Entrée HTTPS (proxy SSL)
+      - "8001:8001"   # Interface admin
+      - "8002:8002"   # Interface admin HTTPS
+    depends_on:
+      - kong-database
+
+volumes:
+  db_data:
+  catalogue-db_data:
+  inventaire-db_data:
+  vente-db_data:
+  administration-db_data:
+  ecommerce-db_data:
+  grafana_data:
+  prometheus_data:
+  kong_data:

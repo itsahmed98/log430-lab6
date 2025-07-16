@@ -1,0 +1,35 @@
+@startuml "Process View - Génere un Rapport Consolidé"
+title Process View - Générer un Rapport Consolidé
+actor "Gestionnaire" as Gestionnaire
+
+participant "Browser" as browser
+participant "MagasinCentral\n<<AdministrationController>>" as AC
+participant "AdministrationMcService\n<<RapportController>>" as rapportController
+participant "AdministrationMcService\n<<RapportService>>" as rapportService
+participant "VenteMcService\n<<VenteController>>" as venteController
+participant "CatalogueMcService\n<<CatalogueController>>" as catalogueController
+participant "InventaireMcService\n<<InventaireController>>" as inventaireController
+
+Gestionnaire -> browser : GET /Rapport
+browser -> AC : GET /Rapport
+AC -> rapportController : GET api/v1/administration/rapports
+rapportController -> rapportService : rapportConsolide =\nObtenirRapportConsolideAsync()
+
+== Recuperer les ventes ==
+rapportService -> venteController : ventes = GET api/v1/ventes
+venteController --> rapportService : Liste des ventes
+
+== Recuperer les produits ==
+rapportService -> catalogueController : produits = GET api/v1/Catalogue/produits
+catalogueController --> rapportService : Liste des produits
+
+== Recuperer les stocks ==
+rapportService -> inventaireController : stocks = GET api/v1/inventaire/stocks
+inventaireController --> rapportService : Liste des stocks
+
+rapportService -> rapportService : Construire le\nrapport consolidé
+
+rapportService --> rapportController : rapportConsolide
+rapportController --> AC : rapportConsolide
+AC -> browser : Afficher le rapport consolidé
+@enduml

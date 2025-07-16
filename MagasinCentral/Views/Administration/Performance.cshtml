@@ -1,0 +1,111 @@
+@model List<PerformanceDto>
+
+@{
+    ViewData["Title"] = "Tableau de bord des performances";
+    var groupesParMagasin = Model
+        .GroupBy(p => p.MagasinId)
+        .Select(g => new
+        {
+            MagasinId = g.Key,
+            Total = g.Sum(p => p.ChiffreAffaires),
+            Ruptures = g.Sum(p => p.RupturesStock),
+            Surstock = g.Sum(p => p.Surstock),
+            Ventes = g.ToList()
+        })
+        .ToList();
+
+    DateTime aujourdHui = DateTime.UtcNow.Date;
+    DateTime semainePasse = aujourdHui.AddDays(-6);
+}
+
+<h1>Tableau de bord des performances</h1>
+
+<h2>Chiffre d’affaires par magasin</h2>
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>ID Magasin</th>
+            <th>Chiffre d’affaires</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in groupesParMagasin)
+        {
+            <tr>
+                <td>@m.MagasinId</td>
+                <td>@m.Total.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<h2>Ruptures de stock par magasin</h2>
+<table class="table table-sm table-danger">
+    <thead>
+        <tr>
+            <th>ID Magasin</th>
+            <th>Nombre de ruptures</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in groupesParMagasin.Where(g => g.Ruptures > 0))
+        {
+            <tr>
+                <td>@m.MagasinId</td>
+                <td>@m.Ruptures</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<h2>Surstock par magasin</h2>
+<table class="table table-sm table-warning">
+    <thead>
+        <tr>
+            <th>ID Magasin</th>
+            <th>Nombre de surstocks</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in groupesParMagasin.Where(g => g.Surstock > 0))
+        {
+            <tr>
+                <td>@m.MagasinId</td>
+                <td>@m.Surstock</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<h2>Tendance des ventes (7 derniers jours)</h2>
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            @foreach (var magasin in groupesParMagasin)
+            {
+                <th>Magasin @magasin.MagasinId</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < 7; i++)
+        {
+            var date = semainePasse.AddDays(i);
+            <tr>
+                <td>@date.ToString("dd/MM/yyyy")</td>
+                @foreach (var magasin in groupesParMagasin)
+                {
+                    var vente = magasin.Ventes.FirstOrDefault(p => p.Date.Date == date);
+                    <td>@(vente?.ChiffreAffaires.ToString("C") ?? "-")</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

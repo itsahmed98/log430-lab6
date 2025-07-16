@@ -1,0 +1,31 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "CatalogueMcService\\CatalogueMcService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "InventaireMcService\\InventaireMcService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "VenteMcService\\VenteMcService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "AdministrationMcService\\AdministrationMcService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MagasinCentral\\MagasinCentral.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ECommerceMcService\\ECommerceMcService.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

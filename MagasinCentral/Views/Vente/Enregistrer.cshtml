@@ -1,0 +1,47 @@
+@model VenteCreateViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Enregistrer une vente";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Enregistrer" method="post">
+    <div class="form-group">
+        <label asp-for="MagasinId"></label>
+        <select asp-for="MagasinId" class="form-control" asp-items="(SelectList)ViewBag.Magasins">
+            <option value="">-- Choisir un magasin --</option>
+        </select>
+        <span asp-validation-for="MagasinId" class="text-danger"></span>
+    </div>
+
+    <h4>Lignes de vente</h4>
+    <div class="mb-2">
+        <button type="submit" name="action" value="add" class="btn btn-secondary">+ Ajouter une ligne</button>
+    </div>
+
+    @for (int i = 0; i < Model.Lignes.Count; i++)
+    {
+        <div class="row mb-3 border p-2">
+            <div class="col-md-6">
+                <label asp-for="Lignes[i].ProduitId"></label>
+                <select asp-for="Lignes[i].ProduitId" class="form-control" asp-items="(SelectList)ViewBag.Produits">
+                    <option value="">-- Choisir un produit --</option>
+                </select>
+                <span asp-validation-for="Lignes[i].ProduitId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Lignes[i].Quantite"></label>
+                <input asp-for="Lignes[i].Quantite" class="form-control" />
+                <span asp-validation-for="Lignes[i].Quantite" class="text-danger"></span>
+            </div>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Enregistrer la vente</button>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
