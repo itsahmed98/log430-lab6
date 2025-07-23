@@ -29,6 +29,11 @@ builder.Services.AddHttpClient("ECommerceMcService", client =>
     client.BaseAddress = new Uri(config["Services:ECommerce"]);
 });
 
+builder.Services.AddHttpClient("SagaService", client =>
+{
+    client.BaseAddress = new Uri(config["Services:Saga"]);
+});
+
 
 builder.Services.AddControllersWithViews();
 

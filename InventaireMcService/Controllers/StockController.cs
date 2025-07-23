@@ -63,19 +63,23 @@ namespace InventaireMcService.Controllers
         [HttpGet("{magasinId:int}/{produitId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<StockDto>> GetOne(int magasinId, int produitId)
+        public async Task<ActionResult<int>> GetOne(int magasinId, int produitId)
         {
             _logger.LogInformation("Recherche du stock pour MagasinId={MagasinId}, ProduitId={ProduitId}.", magasinId, produitId);
 
-            var dto = await _service.GetStockByMagasinProduitAsync(magasinId, produitId);
-            if (dto is not null)
-            {
-                _logger.LogInformation("Stock trouvé : {Quantite} unités disponibles.", dto.Quantite);
-                return Ok(dto);
-            }
+            int quantiteStock;
 
-            _logger.LogWarning("Stock non trouvé pour MagasinId={MagasinId}, ProduitId={ProduitId}.", magasinId, produitId);
-            return NotFound(new { message = $"Stock introuvable pour magasin #{magasinId} et produit #{produitId}." });
+            try
+            {
+                quantiteStock = await _service.GetStockByMagasinProduitAsync(magasinId, produitId);
+                _logger.LogInformation("Stock trouvé : {Quantite} pour MagasinId={MagasinId}, ProduitId={ProduitId}.", quantiteStock, magasinId, produitId);
+                return Ok(quantiteStock);
+            }
+            catch
+            {
+                _logger.LogWarning("Stock non trouvé pour MagasinId={MagasinId}, ProduitId={ProduitId}.", magasinId, produitId);
+                return NotFound(new { message = $"Stock introuvable pour magasin #{magasinId} et produit #{produitId}." });
+            }
         }
 
         /// <summary>

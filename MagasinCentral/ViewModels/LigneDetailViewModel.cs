@@ -23,6 +23,6 @@
         /// <summary>
         /// Le montant total pour cette ligne de vente, calculé comme Quantite * PrixUnitaire.
         /// </summary>
-        public decimal Montant => Quantite * PrixUnitaire;
+        public decimal Montant => PrixUnitaire;
     }
 }

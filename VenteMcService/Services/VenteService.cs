@@ -24,50 +24,8 @@ namespace VenteMcService.Services
         {
             _logger.LogInformation("Début de la création d’une vente pour magasin ID {MagasinId}", vente.MagasinId);
 
-            var nouvellesLignes = new List<LigneVente>();
-
-            foreach (var ligneDto in vente.Lignes.ToList())
-            {
-                _logger.LogInformation("Récupération des infos produit ID {ProduitId}", ligneDto.ProduitId);
-
-                ProduitDto? produit;
-                try
-                {
-                    produit = await _httpCatalogue.GetFromJsonAsync<ProduitDto>($"{_httpCatalogue.BaseAddress}/{ligneDto.ProduitId}");
-                    if (produit == null)
-                    {
-                        _logger.LogWarning("Produit ID {ProduitId} non trouvé par le microservice produit.", ligneDto.ProduitId);
-                        throw new Exception($"Produit {ligneDto.ProduitId} non trouvé.");
-                    }
-                    _logger.LogInformation("Produit ID {ProduitId} récupéré avec succès pour créer une vente.", ligneDto.ProduitId);
-                }
-                catch (HttpRequestException ex)
-                {
-                    _logger.LogError(ex, "Erreur lors de la récupération du produit ID {ProduitId} pour créer une vente", ligneDto.ProduitId);
-                    throw new Exception($"Erreur lors de la récupération du produit {ligneDto.ProduitId} : {ex.Message}");
-                }
-
-                nouvellesLignes.Add(new LigneVente
-                {
-                    ProduitId = ligneDto.ProduitId,
-                    Quantite = ligneDto.Quantite,
-                    PrixUnitaire = produit.Prix
-                });
-
-                _logger.LogInformation("Produit ID {ProduitId} ajouté à la vente.", ligneDto.ProduitId);
-            }
-
-            vente.Lignes = nouvellesLignes;
-
             _context.Ventes.Add(vente);
-            await _context.SaveChangesAsync();
-
-            //Mettre a jour le stock pour chaque ligne de vente
-            foreach (var ligne in nouvellesLignes)
-            {
-                _logger.LogInformation("Mise à jour du stock pour le produit ID {ProduitId} avec la quantité {Quantite}", ligne.ProduitId, ligne.Quantite);
-                UpdataStock(vente.MagasinId ?? 1, ligne.ProduitId, -ligne.Quantite);
-            }
+            await _context.SaveChangesAsync();            
 
             _logger.LogInformation("Vente enregistrée avec ID {VenteId}", vente.VenteId);
             return vente;

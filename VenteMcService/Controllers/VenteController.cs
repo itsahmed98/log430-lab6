@@ -94,6 +94,7 @@ namespace VenteMcService.Controllers
                 {
                     ProduitId = l.ProduitId,
                     Quantite = l.Quantite,
+                    PrixUnitaire = l.PrixUnitaire
                 }).ToList()
             };
 

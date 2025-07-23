@@ -9,5 +9,7 @@ namespace MagasinCentral.ViewModels
 
         [Required, Range(1, int.MaxValue)]
         public int Quantite { get; set; }
+
+        public decimal PrixUnitaire { get; set; } = 0.0m;
     }
 }

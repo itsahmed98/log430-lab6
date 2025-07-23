@@ -12,10 +12,7 @@ namespace MagasinCentral.Controllers;
 public class VenteController : Controller
 {
     private readonly ILogger<VenteController> _logger;
-    private readonly HttpClient _httpVente;
-    private readonly HttpClient _httpCatalogue;
-    private readonly HttpClient _httpAdmin;
-
+    private readonly HttpClient _httpVente, _httpCatalogue, _httpAdmin, _saga;
 
     /// <summary>
     /// Constructeur pour initialiser les services nécessaires à la gestion des ventes.
@@ -27,6 +24,7 @@ public class VenteController : Controller
         _httpVente = client.CreateClient("VenteMcService") ?? throw new ArgumentNullException(nameof(client));
         _httpCatalogue = client.CreateClient("CatalogueMcService") ?? throw new ArgumentNullException(nameof(client));
         _httpAdmin = client.CreateClient("AdministrationMcService") ?? throw new ArgumentNullException(nameof(client));
+        _saga = client.CreateClient("SagaService") ?? throw new ArgumentNullException(nameof(client));
     }
 
     /// <summary>
@@ -81,17 +79,16 @@ public class VenteController : Controller
             Date = DateTime.UtcNow,
             Lignes = vm.Lignes
                 .Where(l => l.Quantite > 0)
-                .Select(l => new { l.ProduitId, l.Quantite })
+                .Select(l => new { l.ProduitId, l.Quantite})
                 .ToList()
         };
 
-        var response = await _httpVente.PostAsJsonAsync("", payload);
+        var response = await _saga.PostAsJsonAsync("", payload);
 
         if (response.IsSuccessStatusCode)
         {
             var created = await response.Content.ReadFromJsonAsync<JsonElement>();
-            int venteId = created.GetProperty("venteId").GetInt32();
-            TempData["Succès"] = $"Vente #{venteId} enregistrée.";
+            TempData["Succès"] = $"Vente enregistrée avec succes!";
             return RedirectToAction("Liste");
         }
 

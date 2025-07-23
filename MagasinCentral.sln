@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceMcService", "EComm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdministrationMcService.Test", "AdministrationMcService.Test\AdministrationMcService.Test.csproj", "{0E812052-14F5-4C0C-8BC0-F6C81ADA1D80}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaOrchestrator", "SagaOrchestrator\SagaOrchestrator.csproj", "{1D5BBAA9-3F9F-4251-BF41-9487710B4510}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{0E812052-14F5-4C0C-8BC0-F6C81ADA1D80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E812052-14F5-4C0C-8BC0-F6C81ADA1D80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E812052-14F5-4C0C-8BC0-F6C81ADA1D80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D5BBAA9-3F9F-4251-BF41-9487710B4510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D5BBAA9-3F9F-4251-BF41-9487710B4510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D5BBAA9-3F9F-4251-BF41-9487710B4510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D5BBAA9-3F9F-4251-BF41-9487710B4510}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

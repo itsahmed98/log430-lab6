@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace VenteMcService.Models
+﻿namespace SagaOrchestrator.Models
 {
-    public class LigneVenteDto
+    public class LigneVenteSagaDto
     {
         /// <summary>
         /// L'identifiant du produit vendu dans cette ligne.
@@ -15,7 +13,7 @@ namespace VenteMcService.Models
         public int Quantite { get; set; }
 
         /// <summary>
-        /// Prix unitaire du produit pour cette ligne de vente.
+        /// Le prix unitaire du produit au moment de la vente.
         /// </summary>
         public decimal PrixUnitaire { get; set; }
     }

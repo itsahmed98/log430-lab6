@@ -25,6 +25,10 @@
       {
         "Path": "ECommerceMcService\\ECommerceMcService.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "SagaOrchestrator\\SagaOrchestrator.csproj",
+        "Action": "Start"
       }
     ]
   }

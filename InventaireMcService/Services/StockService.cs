@@ -45,7 +45,7 @@ namespace InventaireMcService.Services
         }
 
         /// <inheritdoc/>
-        public async Task<StockDto?> GetStockByMagasinProduitAsync(int magasinId, int produitId)
+        public async Task<int> GetStockByMagasinProduitAsync(int magasinId, int produitId)
         {
             _logger.LogInformation("Récupération du stock pour MagasinId={MagasinId}, ProduitId={ProduitId}", magasinId, produitId);
             try
@@ -54,18 +54,7 @@ namespace InventaireMcService.Services
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.MagasinId == magasinId && x.ProduitId == produitId);
 
-                if (si == null)
-                {
-                    _logger.LogWarning("Stock introuvable pour MagasinId={MagasinId}, ProduitId={ProduitId}", magasinId, produitId);
-                    return null;
-                }
-
-                return new StockDto
-                {
-                    MagasinId = si.MagasinId,
-                    ProduitId = si.ProduitId,
-                    Quantite = si.Quantite
-                };
+                return si?.Quantite ?? 0;
             }
             catch (Exception ex)
             {
