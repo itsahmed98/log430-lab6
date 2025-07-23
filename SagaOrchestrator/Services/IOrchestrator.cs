@@ -4,7 +4,7 @@ namespace SagaOrchestrator.Services
 {
     public interface IOrchestrator
     {
-        Task<SagaVente> HandleAsync(VenteSagaDto dto);
+        Task<SagaVente> EnregistrerVente(VenteSagaDto dto);
 
     }
 }

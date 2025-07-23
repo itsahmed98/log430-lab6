@@ -1,0 +1,19 @@
+@startuml
+hide empty description
+[*] --> Init
+Init --> QuantiteStockValide : Vérifier stock
+QuantiteStockValide --> ProduitValide : Récupérer produit
+ProduitValide --> VenteCréée : Créer vente
+VenteCréée --> StockDeduit : Déduire stock
+StockDeduit --> CommandeConfirmée : Succès
+
+QuantiteStockValide --> ErreurStock : Stock insuffisant
+ProduitValide --> ErreurProduit : Produit non trouvé
+VenteCréée --> ErreurVente : Échec création
+StockDeduit --> ErreurCompensation : Échec déduction
+
+ErreurStock --> [*]
+ErreurProduit --> [*]
+ErreurVente --> [*]
+ErreurCompensation --> [*]
+@enduml

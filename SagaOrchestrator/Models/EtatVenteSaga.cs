@@ -7,7 +7,7 @@
         QuantiteStockValide,
         StockDeduit,
         VenteCréée,
-        Terminée,
+        CommandeConfirmee,
         ErreurProduit,
         ErreurStock,
         ErreurVente,

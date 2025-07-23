@@ -19,7 +19,7 @@ namespace SagaOrchestrator.Controllers
         {
             try
             {
-                var result = await _orchestrator.HandleAsync(dto);
+                var result = await _orchestrator.EnregistrerVente(dto);
                 return CreatedAtAction(null, new { id = result.SagaVenteId }, result);
             }
             catch (SagaException ex)

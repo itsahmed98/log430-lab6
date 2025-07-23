@@ -41,6 +41,9 @@ node "ecommerce-api" as ecommerceMcService {
   component "ECommerce API" as ecommerceApi
 }
 
+node "Docker Container : postgresql" as sagaService {
+    database "Saga API" as sagaApi
+}
 
 node "Docker Container : postgresql" as ecommerce-service-db {
     database "ECommerce DB" as ecommerceDb
@@ -60,6 +63,10 @@ node "Docker Container : postgresql" as inventaire-service-db {
 
 node "Docker Container : postgresql" as catalogue-service-db {
     database "Catalogue DB" as catalogueDb
+}
+
+node "Docker Container : postgresql" as saga-service-db {
+    database "Saga DB" as sagaDb
 }
 
 ' --- Observability ---
@@ -87,6 +94,7 @@ kong --> inventaireMcService
 kong --> venteMcService
 kong --> administrationMcService
 kong --> ecommerceMcService
+kong --> sagaApi
 
 
 clientApp --> kong : HTTP Requests
@@ -96,8 +104,9 @@ inventaireMcService --> inventaireDb
 venteMcService --> venteDb
 administrationMcService --> administrationDb
 ecommerceMcService --> ecommerceDb
+sagaService --> sagaDb
 
-Prometheus --> catalogueMcService : scrape
+Prometheus --> sagaService : scrape
 Prometheus --> nodeExporter : scrape
 Grafana --> Prometheus
 

@@ -21,7 +21,7 @@ namespace SagaOrchestrator.Services
             _httpVente = factory.CreateClient("VenteMcService");
         }
 
-        public async Task<SagaVente> HandleAsync(VenteSagaDto dto)
+        public async Task<SagaVente> EnregistrerVente(VenteSagaDto dto)
         {
             // 1. Créer l’entrée saga
             var saga = new SagaVente
@@ -104,7 +104,7 @@ namespace SagaOrchestrator.Services
             }
 
             // 6. Terminer
-            await UpdateEtat(saga, EtatVenteSaga.Terminée);
+            await UpdateEtat(saga, EtatVenteSaga.CommandeConfirmee);
             return saga;
         }
 

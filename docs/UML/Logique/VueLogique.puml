@@ -8,74 +8,6 @@ skinparam class {
   BorderColor Black
 }
 
-database "AdministrationService DB" as adminDb
-
-package "AdministrationMcService" as adminMcService {
-    rectangle "Controllers" as adminSvcControllers{
-        class "MagasinController" as magasinController {
-            +GetAll()
-            +GetById(id: int)
-        }
-        class "PerformanceController" as performanceController {
-            +GetAll()
-        }
-        class "RapportController" as rapportController {
-            +GetAll()
-        }
-    }
-
-    class "AdminDbContext" as adminDbContext {
-    }
-
-    rectangle "Models" as adminSvcModels {
-        class "Magasin" as magasin {
-            +MagasinId: int
-            +Nom: string
-            +Adresse: string
-        }
-        class "Performance" as performance {
-            +PerformanceId: int
-            +MagasinId: int
-            +Date: DateTime
-            +ChiffreAffaires: decimal
-        }
-    }
-
-    rectangle "Services" as adminSvcServices {
-        class "MagasinService" as magasinService {
-            +GetAllAsync()
-            +GetMagasinByIdAsync(id: int)
-        }
-        class "PerformanceService" as performanceService {
-            +GetAllPerformances()
-        }
-        class "RapportService" as rapportService {
-            +ObtenirRapportConsolide()
-        }
-
-        interface "IMagasinService" as iMagasinService {
-        }
-
-        interface "IPerformanceService" as iPerformanceService {
-        }
-
-        interface "IRapportService" as iRapportService {
-        }
-    }
-
-    magasinController --> magasinService : utilise
-    performanceController --> performanceService : utilise
-    rapportController --> rapportService : utilise
-    magasinService ..|> iMagasinService : implémente
-    performanceService ..|> iPerformanceService : implémente
-    rapportService ..|> iRapportService : implémente
-    adminSvcServices --> adminDbContext : utilise
-    adminDbContext --> adminDb : accède
-    adminSvcServices --> adminSvcModels : manipule
-}
-
-database "CatalogueService DB" as catalogueDb
-
 package "CatalogueMcService" as catalogueMcService {
     rectangle "Controllers" as catalogueSvcControllers {
         class "CatalogueController" as catalogueController {
@@ -117,79 +49,6 @@ package "CatalogueMcService" as catalogueMcService {
     catalogueDbContext --> catalogueDb : accède
     catalogueSvcServices --> catalogueSvcModels : manipule
 }
-
-
-database "ECommerceService DB" as eCommerceDb
-package "ECommerceMcService" as eCommerceMcService {
-    rectangle "Controllers" as eCommerceSvcControllers {
-        class "ClientController" as clientController {
-            +GetAll()
-            +GetOne(id: int)
-            +Create(client: ClientDto)
-        }
-
-        class "PanierController" as panierController {
-            +GetPanier(clientId: int)
-            +Ajouter(clientId: int, lignePanier: LignePanierDto)
-            +Supprimer(id: int, produitId: int)
-            +ValiderCommande(panierId: int)
-        }
-    }
-
-    class "ECommerceDbContext" as eCommerceDbContext {
-    }
-
-    rectangle "Models" as eCommerceSvcModels {
-        class "Client" as client {
-            +ClientId: int
-            +Nom: string
-            +Courriel: string
-            +Addresse: string
-        }
-        class "Panier" as panier {
-            +PanierId: int
-            +ClientId: int
-            +Lignes: List<LignePanier>
-        }
-        class "LignePanier" as lignePanier {
-            +LignePanierId: int
-            +PanierId: int
-            +ProduitId: int
-            +Quantite: int
-        }
-    }
-
-    rectangle "Services" as eCommerceSvcServices {
-        class "ClientService" as clientService {
-            +GetAllClients()
-            +GetClientByIdAsync(id: int)
-            +CreateClientAsync(client: ClientDto)
-        }
-        class "PanierService" as panierService {
-            +GetPanierByClientIdAsync(clientId: int)
-            +AjouterLignePanierAsync(clientId: int, lignePanier: LignePanierDto)
-            +SupprimerLignePanierAsync(id: int, produitId: int)
-            +ValiderCommandeAsync(panierId: int)
-        }
-
-        interface "IClientService" as iClientService {
-        }
-
-        interface "IPanierService" as iPanierService {
-        }
-    }
-
-    clientController --> clientService : utilise
-    panierController --> panierService : utilise
-    clientService ..|> iClientService : implémente
-    panierService ..|> iPanierService : implémente
-    eCommerceSvcServices --> eCommerceDbContext : utilise
-    eCommerceDbContext --> eCommerceDb : accède
-    eCommerceSvcServices --> eCommerceSvcModels : manipule
-}
-
-
-database "InventaireService DB" as inventaireDb
 
 package "InventaireMcService" as inventaireMcService {
     rectangle "Controllers" as inventaireSvcControllers {
@@ -264,8 +123,6 @@ package "InventaireMcService" as inventaireMcService {
     reapproService --> inventaireService : utilise
 }
 
-database "VenteService DB" as venteDb
-
 package "VenteMcService" as venteMcService {
     rectangle "Controllers" as venteSvcControllers {
         class "VenteController" as venteController {
@@ -315,10 +172,57 @@ package "VenteMcService" as venteMcService {
     venteController --> venteService : utilise
     venteService ..|> iVenteService : implémente
     venteSvcServices --> venteDbContext : utilise
-    venteDbContext --> venteDb : accède
     venteSvcServices --> venteSvcModels : manipule
+}
 
+package "SagaOchestrator" as sagaOrchestrator {
+    rectangle "Controllers" as sagaControllers {
+        class "SagaController" as sagaController {
+            +VenteSagaController(vente: VenteDto)
+        }
+    }
 
+    class "SagaDbContext" as sagaDbContext {
+    }
+
+    rectangle "Models" {
+        enum "EtatVenteSaga" {
+            Init,
+            ProduitValide,
+            QuantiteStockValide,
+            StockDeduit,
+            VenteCréée,
+            CommandeConfirmee,
+            ErreurProduit,
+            ErreurStock,
+            ErreurVente,
+            ErreurCompensation,
+        }
+
+        class "SagaVente" {
+            +SagaVenteId: int
+            +MagasinId: int
+            +Etat: EtatVenteSaga
+            +UpdatedAt: DateTime
+            +ErrorMessage: string
+        }
+    }
+
+    rectangle "Services" as sagaServices {
+        class "Orchestrator" {
+            +EnregistrerVenteAsync(vente: VenteDto)
+            -UpdateEtat(SagaVente saga, EtatVenteSaga etat)
+            -Fail(SagaVente saga, EtatVenteSaga etat, string msg)
+        }
+
+        interface "IOrchestrator" {
+        }
+    }
+
+    sagaController --> Orchestrator : utilise
+    Orchestrator ..|> IOrchestrator : implémente
+    sagaServices --> sagaDbContext : utilise
+    sagaServices --> Models : manipule
 }
 
 package "MagasinCentral" as clientApp {
@@ -335,30 +239,14 @@ package "MagasinCentral" as clientApp {
         class "InventaireController" as inventaireController {
         }
 
-        class "VenteController" as venteController {
+        class "VenteController" as venteControllerClient {
         }
-    }
-
-    rectangle "API" as clientApi {
-
     }
 }
 
-rapportService --> inventaireMcService : communique via gateway
-rapportService --> catalogueMcService : communique via gateway
-rapportService --> venteMcService : communique via gateway
-
-panierService --> inventaireMcService : communique via gateway
-panierService --> catalogueMcService : communique via gateway
-panierService --> venteMcService : communique via gateway
-
-venteService --> inventaireMcService : communique via gateway
-venteService --> catalogueMcService : communique via gateway
-
-clientApp --> inventaireMcService : communique via gateway
-clientApp --> catalogueMcService : communique via gateway
-clientApp --> eCommerceMcService : communique via gateway
-clientApp --> venteMcService : communique via gateway
-clientApp --> adminMcService : communique via gateway
+venteControllerClient --> sagaController : communique via gateway
+sagaController --> inventaireMcService : communique via gateway
+sagaController --> catalogueMcService : communique via gateway
+sagaController --> venteMcService : communique via gateway
 
 @enduml
