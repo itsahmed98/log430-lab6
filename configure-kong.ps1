@@ -5,6 +5,7 @@ $services = @(
     @{ name = "vente-service"; url = "http://magasincentral-vente:80"; path = "/vente"; strip_path = $true },
     @{ name = "inventaire-service"; url = "http://magasincentral-inventaire:80"; path = "/inventaire"; strip_path = $true },
     @{ name = "administration-service"; url = "http://magasincentral-administration:80"; path = "/administration"; strip_path = $true },
+    @{ name = "saga-service"; url = "http://saga-orchestrator:80"; path = "/sagas"; strip_path = $true; upstream = $true; targets = @("saga-orchestrator-1:80") },
     @{ name = "ecommerce-service"; url = "http://ecommerce-api:80"; path = "/ecommerce"; strip_path = $true; apiKeyRequired = $true }
 )
 
